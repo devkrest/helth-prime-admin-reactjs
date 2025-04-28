@@ -1,0 +1,27 @@
+.minimal-tiptap-editor .ProseMirror .heading-node {
+  @apply relative font-semibold;
+}
+
+.minimal-tiptap-editor .ProseMirror .heading-node:first-child {
+  @apply mt-0;
+}
+
+.minimal-tiptap-editor .ProseMirror h1 {
+  @apply  sm:text-[2.3rem]  sm:tracking-[-0.004375rem] text-[1.5rem];
+}
+
+.minimal-tiptap-editor .ProseMirror h2 {
+  @apply sm:text-[1.8875rem] text-[1.2875rem]  sm:tracking-[0.003125rem];
+}
+
+.minimal-tiptap-editor .ProseMirror h3 {
+  @apply  sm:text-[1.5625rem] text-[1.10625rem]  sm:tracking-[0.00625rem];
+}
+
+.minimal-tiptap-editor .ProseMirror a.link {
+  @apply cursor-pointer text-primary;
+}
+
+.minimal-tiptap-editor .ProseMirror a.link:hover {
+  @apply underline;
+}

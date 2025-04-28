@@ -1,0 +1,191 @@
+// import { Get_User_List_Api } from "@/network/api-call/user";
+import { useEffect, useState, useCallback } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { IRoleModel } from "@/model/role_model";
+import { format } from "date-fns";
+import { DataTable } from "@/components/table/data-table";
+import { api_role_list } from "@/network/apis/role_api";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import { useDebounce } from "@/hooks/use-debounce";
+import AddUpdateRoleDailog from "@/components/dailog/add-update-role/add-update-role";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus } from "lucide-react";
+import { Dialog } from "@/components/ui/dialog";
+
+function RolePage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [data, setData] = useState<IRoleModel[]>([]);
+  const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<IRoleModel | undefined>(
+    undefined
+  );
+
+  const ToolbarContent = () => (
+    <div className="flex items-center gap-2">
+      <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+        <SelectTrigger className="h-8 w-[130px]">
+          <SelectValue placeholder="Filter by status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="All">All Status</SelectItem>
+          <SelectItem value="1">Active</SelectItem>
+          <SelectItem value="-1">Inactive</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button
+        className="h-8 gap-2"
+        onClick={() => {
+          setSelectedRole(undefined);
+          setIsAddRoleOpen(true);
+        }}
+      >
+        <Plus className="h-4 w-4" />
+        Add Role
+      </Button>
+    </div>
+  );
+
+  const getData = useCallback(
+    async (skip: number) => {
+      setIsFetching(true);
+      try {
+        const response = await api_role_list({
+          skip,
+          take: 10,
+          search: debouncedSearch,
+          status: selectedStatus === "All" ? undefined : selectedStatus,
+        });
+        if (response.s) {
+          setData(response.r ?? []);
+        }
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      } finally {
+        setIsFetching(false);
+        setIsLoading(false);
+      }
+    },
+    [debouncedSearch, selectedStatus]
+  );
+
+  useEffect(() => {
+    getData(0);
+  }, [getData]);
+
+  const handleSearchChange = (
+    e: React.ChangeEvent<HTMLInputElement> | string
+  ) => {
+    const value = typeof e === "string" ? e : e.target.value;
+    setSearch(value);
+  };
+
+  const columns: ColumnDef<IRoleModel>[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge
+          variant={row.original.status === 1 ? "default" : "destructive"}
+          className="capitalize"
+        >
+          {row.original.status === 1 ? "Active" : "Inactive"}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "created_at",
+      header: "Created At",
+      cell: ({ row }) =>
+        format(new Date(row.original.created_at), "MMM dd, yyyy"),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 p-0 bg-blue-50 hover:bg-blue-100"
+                  onClick={() => handleEditRole(row.original)}
+                >
+                  <Pencil className="h-4 w-4 text-blue-600" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Edit Role</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ),
+    },
+  ];
+
+  const handleEditRole = (role: IRoleModel) => {
+    setSelectedRole(role);
+    setIsAddRoleOpen(true);
+  };
+
+  return (
+    <div className="pt-20">
+      <DataTable<IRoleModel>
+        columns={columns}
+        data={data}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        onSearchChange={handleSearchChange}
+        getData={getData}
+        search={search}
+        enableSearchField={true}
+        enableViewFilter={true}
+        toolbarContent={<ToolbarContent />}
+        callToNextPage={(index, page_size) => {
+          const totalDataCount = page_size * (index + 1);
+          if (totalDataCount > data.length) {
+            getData(index);
+          }
+        }}
+      />
+
+      {isAddRoleOpen && (
+        <Dialog open={isAddRoleOpen}>
+          <AddUpdateRoleDailog
+            roles={selectedRole}
+            onClose={(v) => {
+              setIsAddRoleOpen(false);
+              setSelectedRole(undefined);
+              if (v) getData(0);
+            }}
+          />
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
+export default RolePage;
