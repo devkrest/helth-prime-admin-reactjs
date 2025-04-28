@@ -71,8 +71,8 @@ function AgencyPage() {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="All">All Status</SelectItem>
-          <SelectItem value="1">Active</SelectItem>
-          <SelectItem value="-1">Inactive</SelectItem>
+          <SelectItem value="Active">Active</SelectItem>
+          <SelectItem value="Blocked">Blocked</SelectItem>
         </SelectContent>
       </Select>
       <Button

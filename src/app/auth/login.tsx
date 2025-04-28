@@ -1,7 +1,6 @@
 import Logo from "@/assets/logo/health-prime.png";
 import { Input } from "@/components/ui/input";
 import LoginBanner from "@/assets/placeholder/login-bg.webp";
-import { Separator } from "@/components/ui/separator";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 // import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +14,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { useState } from "react";
 import { Loader, Mail } from "lucide-react";
@@ -54,71 +53,58 @@ const formSchema = z.object({
 
 function Login() {
   return (
-    <div className="h-screen w-full grid grid-cols-1 md:grid-cols-5 md:max-w-8xl mx-auto">
-      <LoginCard />
-      <SideBannerImage />
+    <div className="min-h-screen w-full bg-gradient-to-br from-background to-muted/50">
+      <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-[35%_65%] lg:px-0">
+        <div className="lg:p-8">
+          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+            <div className="flex flex-col items-center space-y-4">
+              <img src={Logo} className="w-32" alt="Health Prime Logo" />
+              <div className="flex flex-col space-y-2 text-center">
+                <h1 className="text-2xl font-semibold tracking-tight">
+                  Welcome to Health Prime
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Sign in to access your healthcare management dashboard
+                </p>
+              </div>
+            </div>
+            <LoginForm />
+          </div>
+        </div>
+        <div className="relative hidden h-full flex-col p-10 text-white lg:flex">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${LoginBanner})` }}
+          />
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-20 mt-auto">
+            <blockquote className="space-y-2">
+              <p className="text-lg">
+                "Health Prime has transformed how we manage healthcare services.
+                The platform is intuitive and powerful."
+              </p>
+            </blockquote>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default Login;
 
-function SideBannerImage() {
-  return (
-    <div className="bg-muted/60 col-span-3 hidden md:block relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-background/20 to-background/0" />
-      <img src={LoginBanner} className="h-screen w-full object-cover" alt="Login banner" />
-    </div>
-  );
-}
-
-// LOGIN UI COMPONENTS
-function LoginCard() {
-  return (
-    <div className="h-screen col-span-2 flex flex-col justify-center items-center px-6">
-      <div className="w-full max-w-sm space-y-8">
-        <div className="flex flex-col items-center">
-          <img src={Logo} className="w-40 dark:hidden hidden" alt="Health Prime Logo" />
-          <img src={Logo} className="w-40 dark:inline-block inline-block" alt="Health Prime Logo" />
-          <h1 className="mt-6 text-2xl font-bold tracking-tight">Welcome back</h1>
-          <p className="mt-2 text-sm text-muted-foreground text-center">
-            Sign in to your Health Prime account to access your dashboard and manage your health services.
-          </p>
-        </div>
-        <Separator className="my-6 bg-muted/50" />
-        <LoginForm />
-      </div>
-    </div>
-  );
-}
-
 function LoginForm() {
-  // const [isRemember, setIsRemember] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // defaultValues: {
-    //   email: "jordan@cozmohealth.com",
-    //   password: "jordan@cozmo",
-    // },
   });
 
-  // defaultValues: {
-  //   email: "nya@cozmohealth.com",
-  //   password: "nya@cozmo",
-  // },
-
   const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
+
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     const d = await api_login(data);
     if (d.s) {
-      // if (isRemember) {
-      //   localStorage.setItem("user", JSON.stringify(d.r));
-      // }
-      //console.log(d.r);
-
       localStorage.setItem(LocalStorageUserStore, JSON.stringify(d.r));
       setToken();
       navigate("/user", { replace: true });
@@ -158,25 +144,14 @@ function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <PasswordInput
-                  placeholder="Enter your password"
-                  {...field}
-                />
+                <PasswordInput placeholder="Enter your password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* <CheckboxWithText
-          isRemember={isRemember}
-          setIsRemember={setIsRemember}
-        /> */}
-        <Button
-          type="submit"
-          className="w-full h-11"
-          disabled={isLoading}
-        >
+        <Button type="submit" className="w-full h-11" disabled={isLoading}>
           {isLoading ? (
             <Loader className="h-4 w-4 animate-spin" />
           ) : (
@@ -186,7 +161,10 @@ function LoginForm() {
 
         <p className="text-sm text-muted-foreground text-center">
           Need help? Contact support at{" "}
-          <a href="mailto:jordan@healthprime.com" className="text-primary hover:underline">
+          <a
+            href="mailto:jordan@healthprime.com"
+            className="text-primary hover:underline"
+          >
             jordan@healthprime.com
           </a>
         </p>

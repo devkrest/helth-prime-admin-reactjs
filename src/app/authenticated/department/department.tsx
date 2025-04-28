@@ -176,7 +176,7 @@ function DepartmentPage() {
   ];
 
   return (
-    <div className=" pt-20">
+    <div className=" pt-20 pb-10">
       <DataTable<IDepartmentModel>
         columns={columns}
         data={data}
