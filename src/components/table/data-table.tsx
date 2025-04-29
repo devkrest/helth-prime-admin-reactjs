@@ -103,7 +103,7 @@ export function DataTable<TData>({
   }, [...searchValue]);
 
   return (
-    <div className="space-y-4 h-full flex flex-col w-full md:w-[calc(100%-160px)]">
+    <div className="space-y-4 h-full flex flex-col w-full">
       <DataTableToolbar
         table={table}
         search={search}
@@ -125,10 +125,10 @@ export function DataTable<TData>({
           )}
         </div>
         <div className="flex-1 overflow-auto">
-          <div className="min-w-full inline-block">
-            <div className="overflow-x-auto">
+          
+           
               <Table>
-                <TableHeader className="sticky top-0 z-10 bg-muted/50">
+                <TableHeader >
                   {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id} className="hover:bg-transparent">
                       {headerGroup.headers.map((header) => {
@@ -137,7 +137,8 @@ export function DataTable<TData>({
                             key={header.id}
                             colSpan={header.colSpan}
                             style={{ ...getCommonPinningStyles(header.column) }}
-                            className="h-10 whitespace-nowrap"
+                            className="bg-background"
+                           
                           >
                             <div
                               className="flex items-center gap-x-1.5 font-medium"
@@ -200,7 +201,7 @@ export function DataTable<TData>({
                               <TableCell
                                 key={cell.id}
                                 style={{ ...getCommonPinningStyles(cell.column) }}
-                                className="whitespace-nowrap"
+                                className="bg-background opacity-100"
                               >
                                 {flexRender(
                                   cell.column.columnDef.cell,
@@ -228,8 +229,8 @@ export function DataTable<TData>({
                   )}
                 </TableBody>
               </Table>
-            </div>
-          </div>
+           
+         
         </div>
       </div>
       <CommonPagination table={table} callToNextPage={callToNextPage} />
@@ -252,7 +253,7 @@ const getCommonPinningStyles = (column: Column<any>): React.CSSProperties => {
       : undefined,
     left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
     right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    opacity: isPinned ? 0.95 : 1,
+    opacity: isPinned ? 1 : 1,
     position: isPinned ? "sticky" : "relative",
     width: column.getSize(),
     zIndex: isPinned ? 1 : 0,

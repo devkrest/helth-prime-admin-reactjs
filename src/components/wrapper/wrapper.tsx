@@ -41,12 +41,13 @@ function Wrapper() {
       </Sheet>
 
       {/* Main Content */}
+      {/* <MainView setOpen={setOpen} /> */}
       <motion.div
         initial={{ x: 0 }}
         animate={{ x: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className={cn(
-          "flex-1 transition-all duration-300 ease-in-out",
+          "flex-1 transition-all duration-300 ease-in-out w-full",
           "md:pl-[250px]"
         )}
       >

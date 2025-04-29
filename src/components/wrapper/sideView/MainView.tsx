@@ -8,7 +8,7 @@ function MainView({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <div className="h-screen w-full flex flex-col relative">
+    <div className="h-screen w-full flex flex-col relative ">
       <HeaderView setOpen={setOpen} />
       <motion.main
         initial={{ opacity: 0 }}

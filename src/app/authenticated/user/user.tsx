@@ -47,6 +47,8 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
 import Papa from "papaparse";
 import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface ICsvData {
   carrier: string;
@@ -244,11 +246,13 @@ function UserPage() {
       header: "OEP Status",
       cell: ({ row }) => {
         return (
-          <Badge
-            variant={row.original.is_oep_added == 1 ? "default" : "secondary"}
-          >
-            {row.original.is_oep_added == 1 ? "Added" : "Not Added"}
-          </Badge>
+          <div className="w-24 flex justify-center">
+            <Badge
+              variant={row.original.is_oep_added == 1 ? "default" : "secondary"}
+            >
+              {row.original.is_oep_added == 1 ? "Added" : "Not Added"}
+            </Badge>
+          </div>
         );
       },
     },
@@ -396,29 +400,36 @@ function UserPage() {
   ];
 
   return (
-    <div className="h-full w-full pt-16 px-4">
-      <div className="flex flex-col gap-4">
-        <DataTable
-          initialTableState={{
-            columnPinning: {
-              right: ["actions"],
-            },
-          }}
-          columns={columns}
-          data={data}
-          isLoading={isLoading}
-          search={search}
-          onSearchChange={handleSearchChange}
-          getData={getData}
-          toolbarContent={<ToolbarContent />}
-          callToNextPage={(index, page_size) => {
-            const totalDataCount = page_size * (index + 1);
-            if (totalDataCount >= data.length) {
-              getData(data.length);
-            }
-          }}
-        />
-      </div>
+    <div className="pb-[20px]">
+      <Card className="flex flex-col  mt-16  shadow-md">
+        <CardHeader > 
+
+          <CardTitle className="text-xl font-bold text-black/80">User Management</CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          <DataTable
+            initialTableState={{
+              columnPinning: {
+                right: ["actions"],
+              },
+            }}
+            columns={columns}
+            data={data}
+            isLoading={isLoading}
+            search={search}
+            onSearchChange={handleSearchChange}
+            getData={getData}
+            toolbarContent={<ToolbarContent />}
+            callToNextPage={(index, page_size) => {
+              const totalDataCount = page_size * (index + 1);
+              if (totalDataCount >= data.length) {
+                getData(data.length);
+              }
+            }}
+          />
+        </CardContent>
+      </Card>
 
       {/* Add/Edit User Dialog */}
       {isAddUserOpen && (
