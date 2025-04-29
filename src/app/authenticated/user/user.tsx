@@ -14,8 +14,6 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Plus,
   Pencil,
-  Eye,
-  Trash2,
   Ban,
   CheckCheck,
   Import,
@@ -48,7 +46,6 @@ import { cn } from "@/lib/utils";
 import Papa from "papaparse";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 interface ICsvData {
   carrier: string;
