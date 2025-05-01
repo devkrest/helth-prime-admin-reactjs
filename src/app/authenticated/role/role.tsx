@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function RolePage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -152,38 +153,52 @@ function RolePage() {
   };
 
   return (
-    <div className="pt-20">
-      <DataTable<IRoleModel>
-        columns={columns}
-        data={data}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        onSearchChange={handleSearchChange}
-        getData={getData}
-        search={search}
-        enableSearchField={true}
-        enableViewFilter={true}
-        toolbarContent={<ToolbarContent />}
-        callToNextPage={(index, page_size) => {
-          const totalDataCount = page_size * (index + 1);
-          if (totalDataCount > data.length) {
-            getData(index);
-          }
-        }}
-      />
-
-      {isAddRoleOpen && (
-        <Dialog open={isAddRoleOpen}>
-          <AddUpdateRoleDailog
-            roles={selectedRole}
-            onClose={(v) => {
-              setIsAddRoleOpen(false);
-              setSelectedRole(undefined);
-              if (v) getData(0);
+    <div className="pb-10">
+      <Card className="flex flex-col  mt-16  shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-black/80">
+            Role & Permissions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable<IRoleModel>
+            initialTableState={{
+              columnPinning: {
+                right: ["actions"],
+              },
+            }}
+            columns={columns}
+            data={data}
+            isLoading={isLoading}
+            isFetching={isFetching}
+            onSearchChange={handleSearchChange}
+            getData={getData}
+            search={search}
+            enableSearchField={true}
+            enableViewFilter={true}
+            toolbarContent={<ToolbarContent />}
+            callToNextPage={(index, page_size) => {
+              const totalDataCount = page_size * (index + 1);
+              if (totalDataCount > data.length) {
+                getData(index);
+              }
             }}
           />
-        </Dialog>
-      )}
+        </CardContent>
+
+        {isAddRoleOpen && (
+          <Dialog open={isAddRoleOpen}>
+            <AddUpdateRoleDailog
+              roles={selectedRole}
+              onClose={(v) => {
+                setIsAddRoleOpen(false);
+                setSelectedRole(undefined);
+                if (v) getData(0);
+              }}
+            />
+          </Dialog>
+        )}
+      </Card>
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import AddUpdateAgencyDailog from "@/components/dailog/add-update-agency/add-update-agency";
 import { Dialog } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function AgencyPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,34 +28,41 @@ function AgencyPage() {
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [data, setData] = useState<IAgencyModel[]>([]);
   const [isAddAgencyOpen, setIsAddAgencyOpen] = useState(false);
-  const [selectedAgency, setSelectedAgency] = useState<IAgencyModel | undefined>(undefined);
+  const [selectedAgency, setSelectedAgency] = useState<
+    IAgencyModel | undefined
+  >(undefined);
 
-  const getData = useCallback(async (skip: number) => {
-    setIsFetching(true);
-    try {
-      const response = await api_agecny_list({
-        skip,
-        take: 10,
-        search: debouncedSearch,
-        status: selectedStatus === "All" ? undefined : selectedStatus,
-      });
-      if (response.s) {
-        setData(response.r ?? []);
+  const getData = useCallback(
+    async (skip: number) => {
+      setIsFetching(true);
+      try {
+        const response = await api_agecny_list({
+          skip,
+          take: 10,
+          search: debouncedSearch,
+          status: selectedStatus === "All" ? undefined : selectedStatus,
+        });
+        if (response.s) {
+          setData(response.r ?? []);
+        }
+      } catch (error) {
+        console.error("Error fetching agencies:", error);
+      } finally {
+        setIsFetching(false);
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching agencies:", error);
-    } finally {
-      setIsFetching(false);
-      setIsLoading(false);
-    }
-  }, [debouncedSearch, selectedStatus]);
+    },
+    [debouncedSearch, selectedStatus]
+  );
 
   useEffect(() => {
     getData(0);
   }, [getData]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement> | string) => {
-    const value = typeof e === 'string' ? e : e.target.value;
+  const handleSearchChange = (
+    e: React.ChangeEvent<HTMLInputElement> | string
+  ) => {
+    const value = typeof e === "string" ? e : e.target.value;
     setSearch(value);
   };
 
@@ -115,7 +123,8 @@ function AgencyPage() {
     {
       accessorKey: "created_at",
       header: "Created At",
-      cell: ({ row }) => format(new Date(row.original.created_at), "MMM dd, yyyy"),
+      cell: ({ row }) =>
+        format(new Date(row.original.created_at), "MMM dd, yyyy"),
     },
     {
       id: "actions",
@@ -136,38 +145,48 @@ function AgencyPage() {
   ];
 
   return (
-    <div className="pt-20">
-      <DataTable<IAgencyModel>
-        columns={columns}
-        data={data}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        onSearchChange={handleSearchChange}
-        getData={getData}
-        search={search}
-        enableSearchField={true}
-        enableViewFilter={true}
-        toolbarContent={<ToolbarContent />}
-        callToNextPage={(index, page_size) => {
-          const totalDataCount = page_size * (index + 1);
-          if (totalDataCount > data.length) {
-            getData(index);
-          }
-        }}
-      />
-
-      {isAddAgencyOpen && (
-        <Dialog open={isAddAgencyOpen}>
-          <AddUpdateAgencyDailog
-            agency={selectedAgency}
-            onClose={(v) => {
-              setIsAddAgencyOpen(false);
-              setSelectedAgency(undefined);
-              if (v) getData(0);
+    <div className="pb-10">
+      <Card className="flex flex-col  mt-16  shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-black/80">
+            Agency Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable<IAgencyModel>
+            columns={columns}
+            data={data}
+            isLoading={isLoading}
+            isFetching={isFetching}
+            onSearchChange={handleSearchChange}
+            getData={getData}
+            search={search}
+            searchValue={[search, selectedStatus]}
+            enableSearchField={true}
+            enableViewFilter={true}
+            toolbarContent={<ToolbarContent />}
+            callToNextPage={(index, page_size) => {
+              const totalDataCount = page_size * (index + 1);
+              if (totalDataCount > data.length) {
+                getData(index);
+              }
             }}
           />
-        </Dialog>
-      )}
+
+          {isAddAgencyOpen && (
+            <Dialog open={isAddAgencyOpen}>
+              <AddUpdateAgencyDailog
+                agency={selectedAgency}
+                onClose={(v) => {
+                  setIsAddAgencyOpen(false);
+                  setSelectedAgency(undefined);
+                  if (v) getData(0);
+                }}
+              />
+            </Dialog>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

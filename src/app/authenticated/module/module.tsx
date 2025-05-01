@@ -18,6 +18,7 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import AddUpdateModuleDailog from "@/components/dailog/add-update-module/add-update-module";
 import { Dialog } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function ModulePage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -155,38 +156,48 @@ function ModulePage() {
   ];
 
   return (
-    <div className="pt-20">
-      <DataTable<IModuleModel>
-        columns={columns}
-        data={data}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        onSearchChange={handleSearchChange}
-        getData={getData}
-        search={search}
-        enableSearchField={true}
-        enableViewFilter={true}
-        toolbarContent={<ToolbarContent />}
-        callToNextPage={(index, page_size) => {
-          const totalDataCount = page_size * (index + 1);
-          if (totalDataCount > data.length) {
-            getData(index);
-          }
-        }}
-      />
-
-      {isAddModuleOpen && (
-        <Dialog open={isAddModuleOpen}>
-          <AddUpdateModuleDailog
-            module={selectedModule}
-            onClose={(v) => {
-              setIsAddModuleOpen(false);
-              setSelectedModule(undefined);
-              if (v) getData(0);
+    <div className="pb-10">
+      <Card className="flex flex-col  mt-16  shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-black/80">
+            Module Settings
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable<IModuleModel>
+            columns={columns}
+            data={data}
+            isLoading={isLoading}
+            isFetching={isFetching}
+            onSearchChange={handleSearchChange}
+            getData={getData}
+            search={search}
+            searchValue={[search, selectedStatus]}
+            enableSearchField={true}
+            enableViewFilter={true}
+            toolbarContent={<ToolbarContent />}
+            callToNextPage={(index, page_size) => {
+              const totalDataCount = page_size * (index + 1);
+              if (totalDataCount > data.length) {
+                getData(index);
+              }
             }}
           />
-        </Dialog>
-      )}
+
+          {isAddModuleOpen && (
+            <Dialog open={isAddModuleOpen}>
+              <AddUpdateModuleDailog
+                module={selectedModule}
+                onClose={(v) => {
+                  setIsAddModuleOpen(false);
+                  setSelectedModule(undefined);
+                  if (v) getData(0);
+                }}
+              />
+            </Dialog>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -2,30 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 @font-face {
-  font-family: "SaansTRIAL";
-  src: url("assets/fonts/SaansTRIAL-SemiBold.woff2") format("woff2");
-  font-weight: 600;
+  font-family: "Saira";
+  src: url("assets/fonts/Saira-Black.ttf") format("ttf");
+  font-weight: bolder;
 }
 
 @font-face {
-  font-family: "SaansTRIAL";
-  src: url("assets/fonts/SaansTRIAL-Bold.woff2") format("woff2");
+  font-family: "Saira";
+  src: url("assets/fonts/Saira-Bold.ttf") format("ttf");
   font-weight: bold;
 }
 
 @font-face {
-  font-family: "SaansTRIAL";
-  src: url("assets/fonts/SaansTRIAL-Medium.woff2") format("woff2");
+  font-family: "Saira";
+  src: url("assets/fonts/Saira-SemiBold.ttf") format("ttf");
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "Saira";
+  src: url("assets/fonts/Saira-Medium.ttf") format("ttf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Saira";
+  src: url("assets/fonts/Saira-Regular.ttf") format("ttf");
   font-weight: 500;
 }
 
 @font-face {
-  font-family: "SaansTRIAL";
-  src: url("assets/fonts/SaansTRIAL-Regular.woff2") format("woff2");
-  font-weight: normal;
+  font-family: "Saira";
+  src: url("assets/fonts/Saira-Thin.ttf") format("ttf");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Saira";
+  src: url("assets/fonts/Saira-Light.ttf") format("ttf");
+  font-weight: 100;
 }
 
 /* @font-face {
@@ -57,8 +73,7 @@
 html,
 body,
 * {
-  font-family: "SaansTRIAL";
-  
+  font-family: "Saira", sans-serif;
 }
 
 @layer base {
@@ -111,7 +126,7 @@ body,
 
 @layer base {
   * {
-    @apply border-border; 
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;

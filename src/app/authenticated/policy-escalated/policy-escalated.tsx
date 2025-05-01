@@ -1,10 +1,7 @@
 // import { Get_User_List_Api } from "@/network/api-call/user";
 import { useEffect, useState } from "react";
-import { DataTable } from "./components/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { format, formatDistance, isToday } from "date-fns";
-import { DataTableColumnHeader } from "./components/data-table-column-header";
-import { DataTableRowActions } from "./components/data-table-row-actions";
 import { api_policy_lead_get_all } from "@/network/apis/policy-lead-api";
 import { IFollowUpLeadModel } from "@/model/follow_up_model";
 import { cn } from "@/lib/utils";
@@ -12,14 +9,48 @@ import { IUserModel } from "@/model/user_model";
 import { api_all_user_list } from "@/network/apis/user_api";
 import { Link } from "react-router-dom";
 import { useDebounce } from "@/components/ui/milti-selector";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DataTable } from "@/components/table/data-table";
+import { Edit2, Loader } from "lucide-react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { api_policy_lead_assign_to } from "@/network/apis/policy-lead-api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 function PolicyEscalatedPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [autoResetPageIndex, setAutoResetPageIndex] = useState(false);
+  const [_, setAutoResetPageIndex] = useState(false);
   const [search, setSearch] = useState("");
   const searchValue = useDebounce(search, 800);
   const [data, setData] = useState<IFollowUpLeadModel[]>([]);
   const [user, setUser] = useState<IUserModel[]>([]);
+  const [assignTo, setAssignTo] = useState(false);
+  const [sUser, setSUser] = useState<string | undefined>(undefined);
+  const [isAssign, setIsAssign] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<IFollowUpLeadModel | null>(
+    null
+  );
 
   const getAllUser = async () => {
     const u = await api_all_user_list({ module_id: 14 });
@@ -56,94 +87,89 @@ function PolicyEscalatedPage() {
     getData(0, searchValue);
   }, [searchValue]);
 
+  const handleAssignTo = (row: IFollowUpLeadModel) => {
+    setSelectedRow(row);
+    setAssignTo(true);
+  };
+
+  const handleAssign = async () => {
+    if (!sUser || !selectedRow) {
+      toast("Please select a user.");
+      return;
+    }
+    setIsAssign(true);
+    const res = await api_policy_lead_assign_to({
+      follow_up_policy_lead_id: selectedRow.policy_lead_follow_up_id,
+      user_id: sUser,
+    });
+
+    setIsAssign(false);
+
+    if (res && res.s) {
+      toast("Assigned successfully");
+      getData(0, search);
+      setAssignTo(false);
+      setSUser(undefined);
+      setSelectedRow(null);
+    } else {
+      toast(res?.m ?? "Opps! something went wrong.");
+    }
+  };
+
   const columns: ColumnDef<IFollowUpLeadModel>[] = [
     {
       accessorKey: "name",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Lead Name"
-          className="w-[180px]"
-        />
-      ),
+      header: "Lead Name",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[180px]">
-            <span className="">{`${row.original.lead_first_name} ${row.original.lead_last_name}`}</span>
+          <div className="flex flex-col gap-y-1 items-start w-[180px]">
+            <span className="font-medium">{`${row.original.lead_first_name} ${row.original.lead_last_name}`}</span>
           </div>
         );
       },
     },
-
     {
       accessorKey: "lead_phone",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Phone Number"
-          className="w-[120px]"
-        />
-      ),
+      header: "Phone Number",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[120px]">
-            <span className="">{`${row.original.lead_phone}`}</span>
+          <div className="flex flex-col gap-y-1 items-start w-[120px]">
+            <span className="font-medium">{`${row.original.lead_phone}`}</span>
           </div>
         );
       },
     },
-
     {
       accessorKey: "scheduled_type_label",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Follow-Up Category"
-          className="w-[150px]"
-        />
-      ),
+      header: "Follow-Up Category",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[150px]">
-            <span className="">{`${getLabelName(
+          <div className="flex flex-col gap-y-1 items-start w-[150px]">
+            <span className="font-medium">{`${getLabelName(
               row.original.scheduled_type_label
             )}`}</span>
           </div>
         );
       },
     },
-
     {
       accessorKey: "flag_count",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Call Attempt Counter"
-          className="w-[160px]"
-        />
-      ),
+      header: "Call Attempt Counter",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[160px]">
-            <span className="">{`${row.original.flag_count}`}</span>
+          <div className="flex flex-col gap-y-1 items-start w-[160px]">
+            <span className="font-medium">{`${row.original.flag_count}`}</span>
           </div>
         );
       },
     },
-
     {
       accessorKey: "last_attamp",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Last Call Attempt"
-          className="w-[140px]"
-        />
-      ),
+      header: "Last Call Attempt",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[140px]">
-            <span className="">{`${
+          <div className="flex flex-col gap-y-1 items-start w-[140px]">
+            <span className="font-medium">{`${
               !row.original?.last_attamp
                 ? "Not call yet"
                 : formatDistance(
@@ -156,23 +182,16 @@ function PolicyEscalatedPage() {
         );
       },
     },
-
     {
       accessorKey: "link",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Call Now"
-          className="w-[100px]"
-        />
-      ),
+      header: "Call Now",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[100px]">
+          <div className="flex flex-col gap-y-1 items-start w-[100px]">
             <Link
               to={`https://chi.tldcrm.com/dialer/pop/${row.original.lead_id}`}
               target="_blank"
-              className="text-white bg-green-700 rounded-md w-16 py-1 text-center"
+              className="text-white bg-green-700 rounded-md w-16 py-1 text-center hover:bg-green-800 transition-colors"
             >
               Call
             </Link>
@@ -180,21 +199,15 @@ function PolicyEscalatedPage() {
         );
       },
     },
-
     {
       accessorKey: "call_status_label",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Call Status"
-          className="w-[150px]"
-        />
-      ),
+      header: "Call Status",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[150px]">
+          <div className="flex flex-col gap-y-1 items-start w-[150px]">
             <span
               className={cn(
+                "font-medium",
                 row.original.call_status == 0 && "text-yellow-500",
                 row.original.call_status == 1 && "text-blue-500",
                 row.original.call_status == 2 && "text-green-500",
@@ -208,20 +221,13 @@ function PolicyEscalatedPage() {
         );
       },
     },
-
     {
       accessorKey: "scheduled_date",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Scheduled At"
-          className="w-[200px]"
-        />
-      ),
+      header: "Scheduled At",
       cell: ({ row }) => {
         return (
-          <div className="flex flex-col gap-y-[0.10rem] items-start w-[200px]">
-            <span className="">
+          <div className="flex flex-col gap-y-1 items-start w-[200px]">
+            <span className="font-medium">
               {isToday(row.getValue("scheduled_date"))
                 ? "Today"
                 : format(row.getValue("scheduled_date"), "PPP")}
@@ -230,45 +236,141 @@ function PolicyEscalatedPage() {
         );
       },
     },
-
     {
       id: "actions",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Action"
-          className="flex justify-start pr-2"
-        />
-      ),
-      cell: ({ row }) => (
-        <DataTableRowActions
-          user={user}
-          getData={getData}
-          row={row}
-          search={search}
-          
-        />
-      ),
+      header: "Action",
+      cell: ({ row }) => {
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={row.original.call_status == 0}
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-8 w-8 bg-blue-50 text-blue-600 hover:bg-blue-100",
+                    row.original.call_status == 0 && "disabled:opacity-0"
+                  )}
+                  onClick={() => handleAssignTo(row.original)}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Assign Lead</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      },
     },
   ];
 
   return (
-    <div className="h-full w-full pt-20 px-4 ">
-      <DataTable
-        getData={getData}
-        isLoading={isLoading}
-        autoResetPageIndex={autoResetPageIndex}
-        columns={columns}
-        data={data}
-        search={search}
-        setSearch={setSearch}
-        callToNextPage={(index, size) => {
-          const totalDataCount = size * (index + 1);
-          if (totalDataCount >= data.length) {
-            getData(data.length, search);
-          }
-        }}
-      />
+    <div className="pb-10">
+      <Card className="flex flex-col mt-16 shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-black/80">
+            Policy Escalated
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <DataTable
+            columns={columns}
+            data={data}
+            isLoading={isLoading}
+            search={search}
+            searchValue={[search]}
+            onSearchChange={(e) => setSearch(e.target.value)}
+            getData={(skip) => getData(skip, search)}
+            callToNextPage={(index, size) => {
+              const totalDataCount = size * (index + 1);
+              if (totalDataCount >= data.length) {
+                getData(data.length, search);
+              }
+            }}
+            initialTableState={{
+              columnPinning: {
+                right: ["actions"],
+              },
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      <Dialog open={assignTo}>
+        <DialogContent
+          onInteractOutside={isAssign ? () => {} : () => setAssignTo(false)}
+          onXClick={isAssign ? () => {} : () => setAssignTo(false)}
+          className="sm:max-w-[425px] gap-4 p-6"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">
+              Assign Lead
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Select User
+              </label>
+              <Select value={sUser} onValueChange={(v) => setSUser(v)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose a user to assign the lead" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Available Users</SelectLabel>
+                    {user.map((v, i) => (
+                      <SelectItem key={i} value={`${v.id}`}>
+                        {v.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4">
+            <DialogClose asChild>
+              <Button
+                disabled={isAssign}
+                onClick={() => {
+                  setAssignTo(false);
+                  setSUser(undefined);
+                  setSelectedRow(null);
+                }}
+                type="button"
+                variant="outline"
+                className="h-9"
+              >
+                Cancel
+              </Button>
+            </DialogClose>
+
+            <DialogClose asChild>
+              <Button
+                disabled={isAssign}
+                onClick={handleAssign}
+                className="h-9"
+              >
+                {isAssign ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    Assigning...
+                  </>
+                ) : (
+                  "Assign"
+                )}
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

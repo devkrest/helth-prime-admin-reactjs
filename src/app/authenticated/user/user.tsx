@@ -11,14 +11,7 @@ import {
 } from "@/network/apis/user_api";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Plus,
-  Pencil,
-  Ban,
-  CheckCheck,
-  Import,
-  Loader,
-} from "lucide-react";
+import { Plus, Pencil, Ban, CheckCheck, Import, Loader } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -397,13 +390,14 @@ function UserPage() {
   ];
 
   return (
-    <div className="pb-[20px]">
+    <div className="pb-10">
       <Card className="flex flex-col  mt-16  shadow-md">
-        <CardHeader > 
-
-          <CardTitle className="text-xl font-bold text-black/80">User Management</CardTitle>
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-black/80">
+            User Management
+          </CardTitle>
         </CardHeader>
-        
+
         <CardContent>
           <DataTable
             initialTableState={{
@@ -411,6 +405,7 @@ function UserPage() {
                 right: ["actions"],
               },
             }}
+            searchValue={[search, selectedStatus]}
             columns={columns}
             data={data}
             isLoading={isLoading}

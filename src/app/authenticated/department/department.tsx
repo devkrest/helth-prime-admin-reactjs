@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Dialog } from "@/components/ui/dialog";
 import AddUpdateDepartmentDailog from "@/components/dailog/add-update-department/add-update-department";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function DepartmentPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -147,8 +148,12 @@ function DepartmentPage() {
     {
       accessorKey: "created_at",
       header: "Created At",
-      cell: ({ row }) =>
-        format(new Date(row.original.created_at), "MMM dd, yyyy"),
+
+      cell: ({ row }) => (
+        <p className="w-32">
+          {format(new Date(row.original.created_at), "MMM dd, yyyy")}
+        </p>
+      ),
     },
     {
       id: "actions",
@@ -176,38 +181,53 @@ function DepartmentPage() {
   ];
 
   return (
-    <div className=" pt-20 pb-10">
-      <DataTable<IDepartmentModel>
-        columns={columns}
-        data={data}
-        isLoading={isLoading}
-        isFetching={isFetching}
-        onSearchChange={handleSearchChange}
-        getData={getData}
-        search={search}
-        enableSearchField={true}
-        enableViewFilter={true}
-        toolbarContent={<ToolbarContent />}
-        callToNextPage={(index, page_size) => {
-          const totalDataCount = page_size * (index + 1);
-          if (totalDataCount > data.length) {
-            getData(index);
-          }
-        }}
-      />
-
-      {isAddDepartmentOpen && (
-        <Dialog open={isAddDepartmentOpen}>
-          <AddUpdateDepartmentDailog
-            department={selectedDepartment}
-            onClose={(v) => {
-              setIsAddDepartmentOpen(false);
-              setSelectedDepartment(undefined);
-              if (v) getData(0);
+    <div className=" pb-10">
+      <Card className="flex flex-col  mt-16  shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-black/80">
+            Department Setup
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable<IDepartmentModel>
+            initialTableState={{
+              columnPinning: {
+                right: ["actions"],
+              },
+            }}
+            columns={columns}
+            data={data}
+            isLoading={isLoading}
+            isFetching={isFetching}
+            onSearchChange={handleSearchChange}
+            getData={getData}
+            search={search}
+            searchValue={[search]}
+            enableSearchField={true}
+            enableViewFilter={true}
+            toolbarContent={<ToolbarContent />}
+            callToNextPage={(index, page_size) => {
+              const totalDataCount = page_size * (index + 1);
+              if (totalDataCount > data.length) {
+                getData(index);
+              }
             }}
           />
-        </Dialog>
-      )}
+
+          {isAddDepartmentOpen && (
+            <Dialog open={isAddDepartmentOpen}>
+              <AddUpdateDepartmentDailog
+                department={selectedDepartment}
+                onClose={(v) => {
+                  setIsAddDepartmentOpen(false);
+                  setSelectedDepartment(undefined);
+                  if (v) getData(0);
+                }}
+              />
+            </Dialog>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
